@@ -1,0 +1,13 @@
+---
+# Create ec2 instance and add it to ansible inventory
+- name: Delete the sandbox instance
+  hosts: localhost
+  connection: local
+  gather_facts: False
+
+  tasks:
+    - name: Remove resource group
+      azure_rm_resourcegroup:
+        name: rg-cs-ansible
+        force_delete_nonempty: true
+        state: absent

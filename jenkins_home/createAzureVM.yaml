@@ -1,0 +1,58 @@
+---
+# Create ec2 instance and add it to ansible inventory
+- name: Create a sandbox instance
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars:
+    keyname: psp_ansible_key
+
+  tasks:
+    - name: Create resource group
+      azure_rm_resourcegroup:
+        name: rg-cs-ansible
+        location: eastus
+    - name: Create virtual network
+      azure_rm_virtualnetwork:
+        resource_group: rg-cs-ansible
+        name: vnet-cs-web
+        address_prefixes: "10.0.0.0/16"
+    - name: Add subnet
+      azure_rm_subnet:
+        resource_group: rg-cs-ansible
+        name: snet-cs-web
+        address_prefix: "10.0.1.0/24"
+        virtual_network: vnet-cs-web
+    - name: Launch instance
+      register: vm
+      azure_rm_virtualmachine:
+        resource_group: rg-cs-ansible
+        name: vm-cs-web01
+        vm_size: Standard_B1s
+        admin_username: ubuntu
+        ssh_password_enabled: false
+        ssh_public_keys:
+          - path: /home/azureuser/.ssh/authorized_keys
+            key_data: "{{ lookup('file', '/workspaces/DevSecOps/jenkins_home/.ssh/{{ keyname }}.pub') }}"
+        image:
+            offer: UbuntuServer
+            publisher: Canonical
+            sku: 18.04-LTS
+            version: latest
+
+    # - debug:
+    #     msg: "{{ vm }}"
+   
+    - name: Add new instance to hosts group for test
+      local_action: lineinfile
+                    dest="/workspaces/DevSecOps/jenkins_home/ansible_hosts"
+                    regexp={{ vm.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}
+                    insertafter="[tstlaunched]"
+                    line="{{ vm.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}"
+                    state=present
+
+    - name: Wait for SSH to come up
+      local_action: wait_for
+                    host={{ vm.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}
+                    port=22
+                    state=started

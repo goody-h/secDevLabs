@@ -1,0 +1,5 @@
+[local]
+localhost ansible_connection=local
+
+[tstlaunched]
+40.117.133.66
