@@ -55,10 +55,10 @@ stages:
         fi
         
         cd lynis
-        mkdir ${Pipeline.Workspace}/${Build.BuildId}/
-        ./lynis audit dockerfile ${Pipeline.Workspace}/owasp-top10-2017-apps/a7/gossip-world/deployments/Dockerfile | ansi2html > ${Pipeline.Workspace}/${Build.BuildId}/docker-report.html
-        mv /tmp/lynis.log ${Pipeline.Workspace}/${Build.BuildId}/docker_lynis.log
-        mv /tmp/lynis-report.dat ${Pipeline.Workspace}/${Build.BuildId}/docker_lynis-report.dat
+        mkdir ${{ Pipeline.Workspace }}/${{ Build.BuildId }}/
+        ./lynis audit dockerfile ${{ Pipeline.Workspace }}/owasp-top10-2017-apps/a7/gossip-world/deployments/Dockerfile | ansi2html > ${{ Pipeline.Workspace }}/${{ Build.BuildId }}/docker-report.html
+        mv /tmp/lynis.log ${{ Pipeline.Workspace }}/${{ Build.BuildId }}/docker_lynis.log
+        mv /tmp/lynis-report.dat ${{ Pipeline.Workspace }}/${{ Build.BuildId }}/docker_lynis-report.dat
       continueOnError: true 
     # - displayName: Setup test env
     - script: |
@@ -67,7 +67,7 @@ stages:
         echo "localhost ansible_connection=local" >> ~/ansible_hosts
         echo "[tstlaunched]" >> ~/ansible_hosts
         
-        tar cvfz pythonapp.tar.gz -C ${Pipeline.Workspace}/owasp-top10-2017-apps/a7/ .
+        tar cvfz pythonapp.tar.gz -C ${{ Pipeline.Workspace }}/owasp-top10-2017-apps/a7/ .
 
         ssh-keygen -t rsa -N "" -f ~/.ssh/psp_ansible_key || true
         ansible-playbook -i ~/ansible_hosts ./jenkins_home/createAwsEc2.yml
@@ -79,19 +79,19 @@ stages:
     - script: |
         testenv=$(sed -n '/tstlaunched/{n;p;}' ~/ansible_hosts)
         echo $testenv
-        python ./jenkins_home/authDAST.py 0.0.0.0 $testenv ${Pipeline.Workspace}/${Build.BuildId}/DAST_results.html
+        python ./jenkins_home/authDAST.py 0.0.0.0 $testenv ${{ Pipeline.Workspace }}/${{ Build.BuildId }}/DAST_results.html
       continueOnError: true 
     # - displayName: System security audit
     - script: |
         echo 'Run lynis audit on host and fetch result'
-        ansible-playbook -i ~/ansible_hosts ./jenkins_home/hostaudit.yml --extra-vars "logfolder=${Pipeline.Workspace}/${Build.BuildId}/"
+        ansible-playbook -i ~/ansible_hosts ./jenkins_home/hostaudit.yml --extra-vars "logfolder=${{ Pipeline.Workspace }}/${{ Build.BuildId }}/"
       continueOnError: true 
     # - displayName: Deploy WAF
     - script: |
         echo 'Deploy modsecurity as reverse proxy'
-        ansible-playbook -i ~/ansible_hosts ./jenkins_home/configureWAF.yml'
+        ansible-playbook -i ~/ansible_hosts ./jenkins_home/configureWAF.yml
       continueOnError: true 
     # - displayName: Cleanup
     - script: |
-        ansible-playbook -i ~/ansible_hosts ./jenkins_home/killec2.yml'
+        ansible-playbook -i ~/ansible_hosts ./jenkins_home/killec2.yml
 
