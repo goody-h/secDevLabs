@@ -23,6 +23,12 @@
             access: Allow
             priority: 1005
             direction: Inbound
+          - name: SSH
+            protocol: Tcp
+            destination_port_range: 22
+            access: Allow
+            priority: 1004
+            direction: Inbound
     - name: Create virtual network
       azure_rm_virtualnetwork:
         resource_group: rg-cs-ansible
