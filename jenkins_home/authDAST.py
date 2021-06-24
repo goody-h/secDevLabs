@@ -19,7 +19,7 @@ def bash_command(cmd):
 myusername = randomString(8)
 mypassword = randomString(12)
 
-if len(sys.argv) < 4:
+if len(sys.argv) < 3:
     print('1. Provide the ip address for selenium remote server!')
     print('2. Provide the ip address for target DAST scan!')
     print('3. Provide the output location of html report!')
