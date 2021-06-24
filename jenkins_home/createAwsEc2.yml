@@ -12,23 +12,23 @@
       azure_rm_resourcegroup:
         name: rg-cs-ansible
         location: eastus
-    - name: Create Network Security Group that allows SSH
-      azure_rm_securitygroup:
-        resource_group: rg-cs-ansible
-        name: myNetworkSecurityGroup
-        rules:
-          - name: Selenium
-            protocol: Tcp
-            destination_port_range: 10007
-            access: Allow
-            priority: 1005
-            direction: Inbound
-          - name: SSH
-            protocol: Tcp
-            destination_port_range: 22
-            access: Allow
-            priority: 1004
-            direction: Inbound
+    # - name: Create Network Security Group that allows SSH
+    #   azure_rm_securitygroup:
+    #     resource_group: rg-cs-ansible
+    #     name: myNetworkSecurityGroup
+    #     rules:
+    #       - name: Selenium
+    #         protocol: Tcp
+    #         destination_port_range: 10007
+    #         access: Allow
+    #         priority: 1005
+    #         direction: Inbound
+    #       - name: SSH
+    #         protocol: Tcp
+    #         destination_port_range: 22
+    #         access: Allow
+    #         priority: 1004
+    #         direction: Inbound
     - name: Create virtual network
       azure_rm_virtualnetwork:
         resource_group: rg-cs-ansible
@@ -40,7 +40,7 @@
         name: snet-cs-web
         address_prefix: "10.0.1.0/24"
         virtual_network: vnet-cs-web
-        security_group: myNetworkSecurityGroup
+        # security_group: myNetworkSecurityGroup
     - name: Launch instance
       register: vm
       azure_rm_virtualmachine:
