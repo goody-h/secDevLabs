@@ -29,19 +29,19 @@ stages:
       inputs:
         filePath: azure-ansible.sh
     # - displayName: git secret check
-    - script: >
+    - script: |
         echo 'running trufflehog to check project history for secrets'
         trufflehog --regex --entropy=False --max_depth=3 https://github.com/pawnu/secDevLabs
     # - displayName: SCA
-    - script: >
+    - script: |
         echo 'running python safety check on requirements.txt file'
         safety check -r ./owasp-top10-2017-apps/a7/gossip-world/app/requirements.txt
     # - displayName: SAST
-    - script: >
+    - script: |
         echo 'Testing source code for security bugs and vulnerabilities'
         bandit -r ./owasp-top10-2017-apps/a7/gossip-world/app/ -ll || true
     # - displayName: Container audit
-    - script: >
+    - script: |
         echo 'Audit the dockerfile used to spin up the web application'
         if [ -f "./lynis/lynis" ]
         then 
@@ -58,7 +58,7 @@ stages:
         mv /tmp/lynis.log ${Pipeline.Workspace}/${Build.BuildId}/docker_lynis.log
         mv /tmp/lynis-report.dat ${Pipeline.Workspace}/${Build.BuildId}/docker_lynis-report.dat
     # - displayName: Setup test env
-    - script: >
+    - script: |
         #refresh inventory
         echo "[local]" > ~/ansible_hosts
         echo "localhost ansible_connection=local" >> ~/ansible_hosts
@@ -73,19 +73,19 @@ stages:
         
         ansible-playbook -i ~/ansible_hosts ./jenkins_home/configureTestEnv.yml
     # - displayName: DAST
-    - script: >
+    - script: |
         testenv=$(sed -n '/tstlaunched/{n;p;}' ~/ansible_hosts)
         echo $testenv
         python ./jenkins_home/authDAST.py 0.0.0.0 $testenv ${Pipeline.Workspace}/${Build.BuildId}/DAST_results.html
     # - displayName: System security audit
-    - script: >
+    - script: |
         echo 'Run lynis audit on host and fetch result'
         ansible-playbook -i ~/ansible_hosts ./jenkins_home/hostaudit.yml --extra-vars "logfolder=${Pipeline.Workspace}/${Build.BuildId}/"
     # - displayName: Deploy WAF
-    - script: >
+    - script: |
         echo 'Deploy modsecurity as reverse proxy'
         ansible-playbook -i ~/ansible_hosts ./jenkins_home/configureWAF.yml'
     # - displayName: Cleanup
-    - script: >
+    - script: |
         ansible-playbook -i ~/ansible_hosts ./jenkins_home/killec2.yml'
 
