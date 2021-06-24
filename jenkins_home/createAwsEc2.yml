@@ -12,6 +12,17 @@
       azure_rm_resourcegroup:
         name: rg-cs-ansible
         location: eastus
+    - name: Create Network Security Group that allows SSH
+      azure_rm_securitygroup:
+        resource_group: rg-cs-ansible
+        name: myNetworkSecurityGroup
+        rules:
+          - name: Selenium
+            protocol: Tcp
+            destination_port_range: 10007
+            access: Allow
+            priority: 1005
+            direction: Inbound
     - name: Create virtual network
       azure_rm_virtualnetwork:
         resource_group: rg-cs-ansible
@@ -23,6 +34,7 @@
         name: snet-cs-web
         address_prefix: "10.0.1.0/24"
         virtual_network: vnet-cs-web
+        security_group: myNetworkSecurityGroup
     - name: Launch instance
       register: vm
       azure_rm_virtualmachine:
@@ -45,7 +57,7 @@
    
     - name: Add new instance to hosts group for test
       local_action: lineinfile
-                    dest="/workspaces/DevSecOps/jenkins_home/ansible_hosts"
+                    dest="~/ansible_hosts"
                     regexp={{ vm.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}
                     insertafter="[tstlaunched]"
                     line="{{ vm.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}"
