@@ -36,10 +36,12 @@ stages:
     - script: |
         echo 'running python safety check on requirements.txt file'
         safety check -r ./owasp-top10-2017-apps/a7/gossip-world/app/requirements.txt
+      continueOnError: true 
     # - displayName: SAST
     - script: |
         echo 'Testing source code for security bugs and vulnerabilities'
         bandit -r ./owasp-top10-2017-apps/a7/gossip-world/app/ -ll || true
+      continueOnError: true 
     # - displayName: Container audit
     - script: |
         echo 'Audit the dockerfile used to spin up the web application'
@@ -57,6 +59,7 @@ stages:
         ./lynis audit dockerfile ${Pipeline.Workspace}/owasp-top10-2017-apps/a7/gossip-world/deployments/Dockerfile | ansi2html > ${Pipeline.Workspace}/${Build.BuildId}/docker-report.html
         mv /tmp/lynis.log ${Pipeline.Workspace}/${Build.BuildId}/docker_lynis.log
         mv /tmp/lynis-report.dat ${Pipeline.Workspace}/${Build.BuildId}/docker_lynis-report.dat
+      continueOnError: true 
     # - displayName: Setup test env
     - script: |
         #refresh inventory
@@ -77,14 +80,17 @@ stages:
         testenv=$(sed -n '/tstlaunched/{n;p;}' ~/ansible_hosts)
         echo $testenv
         python ./jenkins_home/authDAST.py 0.0.0.0 $testenv ${Pipeline.Workspace}/${Build.BuildId}/DAST_results.html
+      continueOnError: true 
     # - displayName: System security audit
     - script: |
         echo 'Run lynis audit on host and fetch result'
         ansible-playbook -i ~/ansible_hosts ./jenkins_home/hostaudit.yml --extra-vars "logfolder=${Pipeline.Workspace}/${Build.BuildId}/"
+      continueOnError: true 
     # - displayName: Deploy WAF
     - script: |
         echo 'Deploy modsecurity as reverse proxy'
         ansible-playbook -i ~/ansible_hosts ./jenkins_home/configureWAF.yml'
+      continueOnError: true 
     # - displayName: Cleanup
     - script: |
         ansible-playbook -i ~/ansible_hosts ./jenkins_home/killec2.yml'
