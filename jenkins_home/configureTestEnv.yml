@@ -17,7 +17,7 @@
      apt: name=make state=present     
    - name: Copy the zip file of project
      copy: 
-       src: pythonapp.tar.gz 
+       src: ../pythonapp.tar.gz 
        dest: /home/ubuntu/pythonapp.tar.gz
    - name: Unzip it
      unarchive: 
