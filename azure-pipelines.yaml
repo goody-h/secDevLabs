@@ -20,14 +20,14 @@ stages:
     pool:
       vmImage: ubuntu-latest
     steps:
-    # - displayName: Setup environment dependencies
-    - task: Bash@3
-      inputs:
-        filePath: pipeline-setup.sh 
     # - displayName: Setup ansible
     - task: Bash@3
       inputs:
         filePath: azure-ansible.sh
+    # - displayName: Setup environment dependencies
+    - task: Bash@3
+      inputs:
+        filePath: pipeline-setup.sh 
     # - displayName: git secret check
     - script: |
         echo 'running trufflehog to check project history for secrets'

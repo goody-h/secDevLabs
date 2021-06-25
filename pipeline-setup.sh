@@ -23,6 +23,8 @@ pip install selenium
 # configure ansible to use right keys and not check host auth for this ephemeral/temp aws host
 # Not authenticating existing/long-term hosts requiring relogins may lead to mitm.. be careful
 sudo cp ./jenkins/ansible.cfg /etc/ansible/ansible.cfg
+cp ./jenkins/ansible.cfg ~/.ansible.cfg
+cp ./jenkins/ansible.cfg ./.ansible.cfg
 
 wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 sudo apt install -y ./google-chrome-stable_current_amd64.deb
