@@ -46,7 +46,7 @@
       azure_rm_virtualmachine:
         resource_group: rg-cs-ansible
         name: vm-cs-web01
-        vm_size: Standard_B1s
+        vm_size: Standard_B2ms
         admin_username: ubuntu
         ssh_password_enabled: false
         ssh_public_keys:

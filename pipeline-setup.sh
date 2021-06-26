@@ -20,6 +20,8 @@ pip install bandit
 # Used for authenticated DAST scan
 pip install selenium
 
+pip install ansi2html
+
 # configure ansible to use right keys and not check host auth for this ephemeral/temp aws host
 # Not authenticating existing/long-term hosts requiring relogins may lead to mitm.. be careful
 sudo cp ./jenkins/ansible.cfg /etc/ansible/ansible.cfg
